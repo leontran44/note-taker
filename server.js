@@ -18,10 +18,6 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/notes.html'));
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
 // API Routes
 
 // Reads the `db.json` file and returns all saved notes as JSON
@@ -43,4 +39,26 @@ app.post('/api/notes', (req, res) => {
         res.json(newNote);
         });
     });
+});
+
+app.delete('/api/notes/:id', (req, res) => {
+    const { id } = req.params;
+    fs.readFile(path.join(__dirname, 'db/db.json'), 'utf8', (err, data) => {
+    if (err) throw err;
+    const notes = JSON.parse(data);
+    const updatedNotes = notes.filter(note => note.id !== id);
+        fs.writeFile(path.join(__dirname, 'db/db.json'), JSON.stringify(updatedNotes, null, 2), (err) => {
+        if (err) throw err;
+        res.json({ message: 'Note deleted' });
+        });
+    });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
